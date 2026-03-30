@@ -1,9 +1,24 @@
-# Deployment Fix TODO
+# Deployment TODO - GovData Insight to Heroku
 
-- [x] Step 1: Update app.py to load real dados.csv instead of fake data
-- [x] Step 2: Create Procfile for Heroku deployment
-- [x] Step 3: Clean requirements.txt (remove unused plotly)
-- [ ] Step 4: Test locally (pip install -r requirements.txt && streamlit run app.py)
-- [ ] Step 5: Git init/add/commit
-- [ ] Step 6: Heroku create/login/push
+## Approved Plan Steps
+
+### 1. Prepare Git Repo (Pending)
+- `git add .`
+- `git commit -m "Prepare for Heroku deployment"`
+
+### 2. Install Heroku CLI (Pending)
+- Download from https://devcenter.heroku.com/articles/heroku-cli#install-the-heroku-cli
+- Run installer
+- `heroku login`
+
+### 3. Create & Deploy (Pending)
+- `heroku create govdata-insight-[unique]`
+- `git push heroku main`
+- `heroku open`
+
+### 4. Verify (Pending)
+- `heroku logs --tail`
+- `heroku ps:scale web=1`
+
+**Status: Ready to execute step-by-step. Mark as [DONE] when completed.**
 
