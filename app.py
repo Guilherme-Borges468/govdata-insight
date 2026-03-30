@@ -1,11 +1,6 @@
-```python
 import streamlit as st
 import pandas as pd
 import numpy as np
-
-# -------------------------------
-# CONFIGURAÇÃO DA PÁGINA
-# -------------------------------
 
 st.set_page_config(
     page_title="GovData Insight",
@@ -13,14 +8,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# -------------------------------
+# -----------------------
 # LOGIN
-# -------------------------------
+# -----------------------
 
 def login():
 
     st.title("🔐 GovData Insight")
-
     st.subheader("Sistema de Análise de Despesas Públicas")
 
     usuario = st.text_input("Usuário")
@@ -29,12 +23,10 @@ def login():
     if st.button("Entrar"):
 
         if usuario == "admin" and senha == "admin123":
-
             st.session_state["logado"] = True
             st.rerun()
 
         else:
-
             st.error("Usuário ou senha inválidos")
 
 
@@ -47,9 +39,9 @@ if not st.session_state["logado"]:
     st.stop()
 
 
-# -------------------------------
+# -----------------------
 # SIDEBAR
-# -------------------------------
+# -----------------------
 
 st.sidebar.title("GovData Insight")
 
@@ -62,9 +54,10 @@ if st.sidebar.button("Sair"):
     st.session_state["logado"] = False
     st.rerun()
 
-# -------------------------------
+
+# -----------------------
 # DADOS FAKE
-# -------------------------------
+# -----------------------
 
 municipios = [
     "Joinville",
@@ -86,12 +79,13 @@ categorias = [
 dados = pd.DataFrame({
     "Município": np.random.choice(municipios, 30),
     "Categoria": np.random.choice(categorias, 30),
-    "Valor": np.random.randint(100000, 2000000, 30),
+    "Valor": np.random.randint(100000, 2000000, 30)
 })
 
-# -------------------------------
+
+# -----------------------
 # DASHBOARD
-# -------------------------------
+# -----------------------
 
 if pagina == "Dashboard":
 
@@ -99,20 +93,9 @@ if pagina == "Dashboard":
 
     col1, col2, col3 = st.columns(3)
 
-    col1.metric(
-        "Municípios Monitorados",
-        "128"
-    )
-
-    col2.metric(
-        "Despesas Analisadas",
-        "R$ 24.5M"
-    )
-
-    col3.metric(
-        "Alertas de Irregularidade",
-        "17"
-    )
+    col1.metric("Municípios Monitorados", "128")
+    col2.metric("Despesas Analisadas", "R$ 24.5M")
+    col3.metric("Alertas de Irregularidade", "17")
 
     st.divider()
 
@@ -134,9 +117,9 @@ if pagina == "Dashboard":
     st.bar_chart(categorias_df)
 
 
-# -------------------------------
-# TABELA DE DESPESAS
-# -------------------------------
+# -----------------------
+# DESPESAS
+# -----------------------
 
 if pagina == "Despesas":
 
@@ -154,9 +137,10 @@ if pagina == "Despesas":
 
     st.dataframe(df_filtrado, use_container_width=True)
 
-# -------------------------------
-# RELATÓRIO
-# -------------------------------
+
+# -----------------------
+# RELATÓRIOS
+# -----------------------
 
 if pagina == "Relatórios":
 
@@ -175,4 +159,3 @@ if pagina == "Relatórios":
 
     if st.button("Gerar Relatório Analítico"):
         st.success("Relatório gerado com sucesso!")
-```
