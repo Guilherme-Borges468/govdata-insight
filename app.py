@@ -1,6 +1,11 @@
+```python
 import streamlit as st
 import pandas as pd
 import numpy as np
+
+# -------------------------------
+# CONFIGURAÇÃO DA PÁGINA
+# -------------------------------
 
 st.set_page_config(
     page_title="GovData Insight",
@@ -8,84 +13,166 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📊 GovData Insight")
-st.subheader("Plataforma de análise de receitas e despesas municipais")
+# -------------------------------
+# LOGIN
+# -------------------------------
 
-# ---------------------------
-# CARREGAR DADOS REAIS
-# ---------------------------
+def login():
 
-try:
-    df = pd.read_csv('dados.csv')
-    df.columns = df.columns.str.title()  # cidade -> Cidade, receita -> Receita, etc.
-    df['Receita'] = pd.to_numeric(df['Receita'], errors='coerce')
-    df['Despesa'] = pd.to_numeric(df['Despesa'], errors='coerce')
-    st.success(f"✅ Dados carregados com sucesso ({len(df)} registros)!")
-except Exception as e:
-    st.error(f"❌ Erro ao carregar dados.csv: {e}")
+    st.title("🔐 GovData Insight")
+
+    st.subheader("Sistema de Análise de Despesas Públicas")
+
+    usuario = st.text_input("Usuário")
+    senha = st.text_input("Senha", type="password")
+
+    if st.button("Entrar"):
+
+        if usuario == "admin" and senha == "admin123":
+
+            st.session_state["logado"] = True
+            st.rerun()
+
+        else:
+
+            st.error("Usuário ou senha inválidos")
+
+
+if "logado" not in st.session_state:
+    st.session_state["logado"] = False
+
+
+if not st.session_state["logado"]:
+    login()
     st.stop()
 
-# KPIs
-total_receita = df["Receita"].sum()
-total_despesa = df["Despesa"].sum()
-saldo = total_receita - total_despesa if not pd.isna(total_receita) and not pd.isna(total_despesa) else 0
 
-col1, col2, col3 = st.columns(3)
+# -------------------------------
+# SIDEBAR
+# -------------------------------
 
-col1.metric("💰 Receita Total", f"R$ {total_receita:,.0f}")
-col2.metric("📉 Despesa Total", f"R$ {total_despesa:,.0f}")
-col3.metric("📊 Saldo", f"R$ {saldo:,.0f}")
+st.sidebar.title("GovData Insight")
 
-st.divider()
-
-# ---------------------------
-# FILTRO
-# ---------------------------
-
-cidades = sorted(df["Cidade"].unique())
-cidade = st.selectbox("Selecione a cidade", ["Todas"] + cidades)
-
-if cidade != "Todas":
-    df_filtered = df[df["Cidade"] == cidade].copy()
-else:
-    df_filtered = df.copy()
-
-# ---------------------------
-# GRÁFICOS
-# ---------------------------
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Receitas por Cidade")
-    receita_cidade = df.groupby("Cidade")["Receita"].sum()
-    st.bar_chart(receita_cidade)
-
-with col2:
-    st.subheader("Despesas por Cidade")
-    despesa_cidade = df.groupby("Cidade")["Despesa"].sum()
-    st.bar_chart(despesa_cidade)
-
-st.divider()
-
-# ---------------------------
-# TABELA
-# ---------------------------
-
-st.subheader("Dados detalhados")
-
-st.dataframe(df_filtered, width="stretch")
-
-st.divider()
-
-st.info(
-"""
-Este dashboard é um protótipo da plataforma **GovData Insight**.
-
-Objetivo do sistema:
-- Centralizar dados de receitas e despesas municipais
-- Automatizar coleta de dados públicos
-- Permitir classificação e análise financeira
-- Gerar relatórios estratégicos para tomada de decisão
-"""
+pagina = st.sidebar.radio(
+    "Navegação",
+    ["Dashboard", "Despesas", "Relatórios"]
 )
+
+if st.sidebar.button("Sair"):
+    st.session_state["logado"] = False
+    st.rerun()
+
+# -------------------------------
+# DADOS FAKE
+# -------------------------------
+
+municipios = [
+    "Joinville",
+    "Blumenau",
+    "Florianópolis",
+    "Jaraguá do Sul",
+    "Chapecó",
+    "Itajaí"
+]
+
+categorias = [
+    "Saúde",
+    "Educação",
+    "Infraestrutura",
+    "Transporte",
+    "Segurança"
+]
+
+dados = pd.DataFrame({
+    "Município": np.random.choice(municipios, 30),
+    "Categoria": np.random.choice(categorias, 30),
+    "Valor": np.random.randint(100000, 2000000, 30),
+})
+
+# -------------------------------
+# DASHBOARD
+# -------------------------------
+
+if pagina == "Dashboard":
+
+    st.title("📊 Dashboard de Despesas Públicas")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(
+        "Municípios Monitorados",
+        "128"
+    )
+
+    col2.metric(
+        "Despesas Analisadas",
+        "R$ 24.5M"
+    )
+
+    col3.metric(
+        "Alertas de Irregularidade",
+        "17"
+    )
+
+    st.divider()
+
+    st.subheader("📈 Evolução de Gastos Públicos")
+
+    anos = pd.DataFrame({
+        "Ano": ["2020", "2021", "2022", "2023", "2024"],
+        "Gastos": np.random.randint(5, 20, 5)
+    })
+
+    st.line_chart(anos.set_index("Ano"))
+
+    st.divider()
+
+    st.subheader("💰 Distribuição por Categoria")
+
+    categorias_df = dados.groupby("Categoria")["Valor"].sum()
+
+    st.bar_chart(categorias_df)
+
+
+# -------------------------------
+# TABELA DE DESPESAS
+# -------------------------------
+
+if pagina == "Despesas":
+
+    st.title("💰 Despesas Municipais")
+
+    municipio = st.selectbox(
+        "Filtrar por Município",
+        ["Todos"] + municipios
+    )
+
+    if municipio != "Todos":
+        df_filtrado = dados[dados["Município"] == municipio]
+    else:
+        df_filtrado = dados
+
+    st.dataframe(df_filtrado, use_container_width=True)
+
+# -------------------------------
+# RELATÓRIO
+# -------------------------------
+
+if pagina == "Relatórios":
+
+    st.title("📄 Relatórios Financeiros")
+
+    st.write("Exportar dados de despesas municipais.")
+
+    csv = dados.to_csv(index=False)
+
+    st.download_button(
+        label="📥 Baixar Relatório CSV",
+        data=csv,
+        file_name="relatorio_despesas.csv",
+        mime="text/csv"
+    )
+
+    if st.button("Gerar Relatório Analítico"):
+        st.success("Relatório gerado com sucesso!")
+```
