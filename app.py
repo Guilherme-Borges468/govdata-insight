@@ -12,23 +12,23 @@ st.title("📊 GovData Insight")
 st.subheader("Plataforma de análise de receitas e despesas municipais")
 
 # ---------------------------
-# DADOS FAKE PARA DEMONSTRAÇÃO
+# CARREGAR DADOS REAIS
 # ---------------------------
 
-cidades = ["Buritirama", "Salvador", "Barreiras", "Feira de Santana", "Juazeiro"]
-
-data = {
-    "Cidade": np.random.choice(cidades, 200),
-    "Receita": np.random.randint(100000, 1000000, 200),
-    "Despesa": np.random.randint(50000, 900000, 200),
-}
-
-df = pd.DataFrame(data)
+try:
+    df = pd.read_csv('dados.csv')
+    df.columns = df.columns.str.title()  # cidade -> Cidade, receita -> Receita, etc.
+    df['Receita'] = pd.to_numeric(df['Receita'], errors='coerce')
+    df['Despesa'] = pd.to_numeric(df['Despesa'], errors='coerce')
+    st.success(f"✅ Dados carregados com sucesso ({len(df)} registros)!")
+except Exception as e:
+    st.error(f"❌ Erro ao carregar dados.csv: {e}")
+    st.stop()
 
 # KPIs
 total_receita = df["Receita"].sum()
 total_despesa = df["Despesa"].sum()
-saldo = total_receita - total_despesa
+saldo = total_receita - total_despesa if not pd.isna(total_receita) and not pd.isna(total_despesa) else 0
 
 col1, col2, col3 = st.columns(3)
 
@@ -42,10 +42,13 @@ st.divider()
 # FILTRO
 # ---------------------------
 
+cidades = sorted(df["Cidade"].unique())
 cidade = st.selectbox("Selecione a cidade", ["Todas"] + cidades)
 
 if cidade != "Todas":
-    df = df[df["Cidade"] == cidade]
+    df_filtered = df[df["Cidade"] == cidade].copy()
+else:
+    df_filtered = df.copy()
 
 # ---------------------------
 # GRÁFICOS
@@ -71,7 +74,7 @@ st.divider()
 
 st.subheader("Dados detalhados")
 
-st.dataframe(df, use_container_width=True)
+st.dataframe(df_filtered, width="stretch")
 
 st.divider()
 
